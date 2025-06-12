@@ -3,8 +3,8 @@
 ## 📅 2025년 6월 12일
 
 ## 📌 목적
-기존 이미지 슬라이드 코드에서 **fade 전환 효과**를 구현하려 했지만 잘 되지 않아,  
-**선생님 코드와 비교**하여 내가 작성한 코드를 어떻게 개선할 수 있는지 정리함.
+- 기존 이미지 슬라이드 코드에서 **fade 전환 효과**를 구현하려 했지만 잘 되지 않아,  
+- **선생님 코드와 비교**하여 내가 작성한 코드를 어떻게 개선할 수 있는지 정리함.
 
 ---
 
@@ -43,7 +43,7 @@ function updateImage(index) {
     $image.style.opacity = 1;
   }, 1000);
 }
-````
+```
 
 ### 🔁 슬라이드 재시작 함수
 
@@ -82,13 +82,5 @@ function restartSlideShow() {
 
 ## 📁 참고 파일
 
-* 📝 내 코드: `practice1.html`
-* ✅ 선생님 코드: `practice1-refactored.html`
-
-```
-
----
-
-이 문서는 `20250612_TIL_image_slider_fade.md`처럼 따로 저장해 GitHub에 올려도 좋아요!  
-필요하시면 이 내용을 TIL 전체 파일에 병합하거나 파일로도 만들어드릴게요. 😊
-```
+* 📝 내 코드: `4-1-timer\practice1.html`
+* ✅ 선생님 코드: `4-1-timer\practice1-refactored.html`
