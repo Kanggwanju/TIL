@@ -1,294 +1,146 @@
-# 🗓️ 2025년 6월 10일 고차 함수 실습
+# 🗓️ 2025년 6월 10일 - 고차 함수 실습
 
+JavaScript 배열 고차 함수 `filter`, `reduce`, `sort`를 이용해 거래 데이터(traders)를 다루는 실습을 진행했습니다.  
+각 문제에서 제가 작성한 풀이, 선생님의 풀이, 그리고 배운 점을 함께 정리했습니다.
 
+---
+
+## 📁 주어진 배열
 <details>
-<summary>📁 주어진 배열 보기</summary>
+<summary>거래 데이터 보기</summary>
 
 ```javascript
 const traders = [
-  {
-    trader: {
-      name: '김철수', // traders[0].trader.name
-      city: '대전',
-    },
-    year: 2023, // traders[0].year
-    value: 500000,
-  },
-  {
-    trader: {
-      name: '박영희',
-      city: '서울',
-    },
-    year: 2022, // traders[1].year
-    value: 600000,
-  },
-  {
-    trader: {
-      name: '김철수',
-      city: '대전',
-    },
-    year: 2022,
-    value: 1200000,
-  },
-  {
-    trader: {
-      name: '박영희',
-      city: '서울',
-    },
-    year: 2023,
-    value: 650000,
-  },
-  {
-    trader: {
-      name: '뽀로로',
-      city: '부산',
-    },
-    year: 2023,
-    value: 800000,
-  },
-  {
-    trader: {
-      name: '루피',
-      city: '대전',
-    },
-    year: 2022,
-    value: 780000,
-  },
-  {
-    trader: {
-      name: '김철수',
-      city: '대전',
-    },
-    year: 2023,
-    value: 1500000,
-  },
-  {
-    trader: {
-      name: '김철수',
-      city: '대전',
-    },
-    year: 2022,
-    value: 2500000,
-  },
-  {
-    trader: {
-      name: '김철수',
-      city: '대전',
-    },
-    year: 2022,
-    value: 500000,
-  },
-  {
-    trader: {
-      name: '루피',
-      city: '대전',
-    },
-    year: 2023,
-    value: 120000,
-  },
+  { trader: { name: '김철수', city: '대전' }, year: 2023, value: 500000 },
+  { trader: { name: '박영희', city: '서울' }, year: 2022, value: 600000 },
+  { trader: { name: '김철수', city: '대전' }, year: 2022, value: 1200000 },
+  { trader: { name: '박영희', city: '서울' }, year: 2023, value: 650000 },
+  { trader: { name: '뽀로로', city: '부산' }, year: 2023, value: 800000 },
+  { trader: { name: '루피', city: '대전' }, year: 2022, value: 780000 },
+  { trader: { name: '김철수', city: '대전' }, year: 2023, value: 1500000 },
+  { trader: { name: '김철수', city: '대전' }, year: 2022, value: 2500000 },
+  { trader: { name: '김철수', city: '대전' }, year: 2022, value: 500000 },
+  { trader: { name: '루피', city: '대전' }, year: 2023, value: 120000 },
 ];
 ```
 </details>
 
+---
 
+## 1️⃣ 2023년에 대전에서 발생한 거래의 총액
 
-<!-- 내 코드 -->
-```javascript
-// 1. **2023년에 대전에서 발생한 모든 거래의 총액을 계산해주세요.**
+### ✍️ 내 풀이
+
+```js
 const daejeonAllValue = traders
   .filter(trade => trade.year === 2023 && trade.trader.city === '대전')
-  .reduce((a, b) => a + b.value, 0)
-;
+  .reduce((a, b) => a + b.value, 0);
+
 console.log(`총액: ${daejeonAllValue}원`);
-console.log('=======================================');
-
-
-// 2. **모든 거래 중 가장 높은 거래액을 가진 거래의
-//   거래자 정보(이름, 도시)와 거래액을 출력해주세요.**
-const sortedTraders = traders.sort((a, b) => b.value - a.value);
-console.log(`가장 높은 거래액 정보 - 이름: ${sortedTraders[0].trader.name}, 도시: ${sortedTraders[0].trader.city}, 거래액: ${sortedTraders[0].value}`);
-console.log('=======================================');
-
-
-// 3. **각 도시별로 발생한 총 거래액을 객체 형태로 매핑해주세요.
-//   예를 들어, `{서울: 총거래액, 부산: 총거래액}`과 같은 형태입니다.**
-
-const citiesValue = traders.reduce((resultObj, trade) => {
-  switch (trade.trader.city) {
-    case '서울':
-      if (resultObj['서울']) {
-        resultObj['서울'] += trade.value;
-      } else {
-        resultObj['서울'] = trade.value;
-      }
-      break;
-    case '부산':
-      if (resultObj['부산']) {
-        resultObj['부산'] += trade.value;
-      } else {
-        resultObj['부산'] = trade.value;
-      }
-      break;
-    case '대전':
-      if (resultObj['대전']) {
-        resultObj['대전'] += trade.value;
-      } else {
-        resultObj['대전'] = trade.value;
-      }
-      break;
-  }
-
-  return resultObj;
-}, {});
-console.log(citiesValue);
-
-
-// 4. **각 도시에서 진행된 거래의 수를 계산해주세요.
-//   결과는 `{도시이름: 거래수}` 형태의 객체여야 합니다.**
-const cityTradeNum = traders.reduce((resultObj, trade) => {
-  if (trade.trader.city === '서울') {
-    if (resultObj['서울']) resultObj['서울']++;
-    else resultObj['서울'] = 1;
-  } else if (trade.trader.city === '부산') {
-    if (resultObj['부산']) resultObj['부산']++;
-    else resultObj['부산'] = 1;
-  } else if (trade.trader.city === '대전') {
-    if (resultObj['대전']) resultObj['대전']++;
-    else resultObj['대전'] = 1;
-  }
-  return resultObj;
-}, {});
-console.log(cityTradeNum);
-
-
-// 5. **거래액을 기준으로 모든 거래를 오름차순으로 정렬한 후,
-//   정렬된 리스트를 출력해주세요.
-//   각 거래 정보는 거래자 이름, 도시, 연도, 거래액을 포함해야 합니다.**
-const sortedList = traders.sort((a, b) => a.value - b.value);
-console.log(sortedList);
 ```
 
+### ✅ 배운 점
 
+* 조건에 맞는 데이터 필터링 후, `reduce`로 누적 합계 계산 가능.
+* 체이닝 기법에 익숙해짐.
 
-<!-- 풀이 코드 -->
-```javascript
-// 1. **2023년에 대전에서 발생한 모든 거래의 총액을 계산해주세요.**
+---
 
-/*let totalInDaejeon2023 = 0;
-for (const trs of traders) {
-  if (trs.year === 2023 && trs.trader.city === '대전')
-    totalInDaejeon2023 += trs.value;
-}*/
+## 2️⃣ 가장 높은 거래액의 거래 정보 출력
 
-const totalInDaejeon2023 = traders
-  .filter(trs => trs.year === 2023 && trs.trader.city === '대전')
-  .reduce((total, trs) => total + trs.value, 0)
-;
+### ❌ 내 풀이 (원본 배열 변형 문제 발생)
 
-console.log(`총액: ${totalInDaejeon2023}원`);
+```js
+const sortedTraders = traders.sort((a, b) => b.value - a.value);
+console.log(`가장 높은 거래액 정보 - 이름: ${sortedTraders[0].trader.name}, 도시: ${sortedTraders[0].trader.city}, 거래액: ${sortedTraders[0].value}`);
+```
 
+* `sort`는 배열을 직접 바꾸기 때문에 이후 문제에서 원본이 훼손됨.
 
-// 2. **모든 거래 중 가장 높은 거래액을 가진 거래의
-//   거래자 정보(이름, 도시)와 거래액을 출력해주세요.**
-console.log('===================');
+### ✅ 선생님 풀이
 
-/*let highestTransaction = traders[0];
-
-for (const trs of traders) {
-  if (highestTransaction.value < trs.value) {
-    highestTransaction = trs;
-  }
-}
-
-const {trader, value} = highestTransaction;
-const {name, city} = trader;*/
-
-/*const highestTransaction
-  = traders.reduce((max, trs) =>
-      max.value < trs.value ? trs : max
-    );*/
-
+```js
 const copyTraders = [...traders];
 copyTraders.sort((a, b) => b.value - a.value);
 
 const highestTransaction = copyTraders[0];
-
-const {trader, value} = highestTransaction;
-const {name, city} = trader;
+const { trader, value } = highestTransaction;
+const { name, city } = trader;
 
 console.log(`가장 높은 거래액 정보 - 이름: ${name}, 도시: ${city}, 거래액: ${value}원`);
+```
 
+### 💡 배운 점
 
-// 3. **각 도시별로 발생한 총 거래액을 객체 형태로 매핑해주세요.
-//   예를 들어, `{서울: 총거래액, 부산: 총거래액}`과 같은 형태입니다.**
-console.log('===================');
+* `...` 스프레드 문법으로 배열 복사 후 정렬 → 원본 보존 가능.
+* 구조 분해 할당으로 코드 가독성 증가.
 
-/*const totalByCity = {};
+---
 
-// 서울 거래 총액 구하기
-let totalInSeoul = 0;
-let totalInDaejeon = 0;
-let totalInBusan = 0;
+## 3️⃣ 각 도시별 총 거래액 구하기
 
-for (const trs of traders) {
-  if (trs.trader.city === '서울') {
-    totalInSeoul += trs.value;
-  } else if (trs.trader.city === '부산') {
-    totalInBusan += trs.value;
-  } else if (trs.trader.city === '대전') {
-    totalInDaejeon += trs.value;
+### ✍️ 내 풀이
+
+```js
+const citiesValue = traders.reduce((resultObj, trade) => {
+  switch (trade.trader.city) {
+    case '서울':
+      resultObj['서울'] = (resultObj['서울'] || 0) + trade.value;
+      break;
+    case '부산':
+      resultObj['부산'] = (resultObj['부산'] || 0) + trade.value;
+      break;
+    case '대전':
+      resultObj['대전'] = (resultObj['대전'] || 0) + trade.value;
+      break;
   }
-}
-totalByCity['서울'] = totalInSeoul;
-totalByCity['대전'] = totalInDaejeon;
-totalByCity['부산'] = totalInBusan;
+  return resultObj;
+}, {});
+console.log(citiesValue);
+```
 
-console.log(totalByCity);*/
+### ✅ 선생님 풀이
 
-// 결과 그룹핑 객체
-/*
-const totalByCity = {};
-
-for (const trs of traders) {
-  const city = trs.trader.city;
-
-  // 처음 등장한 도시인가?
-  if (totalByCity[city] === undefined) {
-    // 도시를 key로 거래액을 value로 새 프로퍼티 추가
-    totalByCity[city] = trs.value;
-  } else { // 이미 한번 이상 저장된 도시
-    totalByCity[city] += trs.value;
-  }
-}
-
-console.log(totalByCity);
-*/
-
-/*const totalByCity = traders.reduce((cityObj, trs) => {
-  const city = trs.trader.city;
-  if (cityObj[city] === undefined) {
-    cityObj[city] = trs.value;
-  } else {
-    cityObj[city] += trs.value;
-  }
-  return cityObj;
-}, {});*/
-
+```js
 const totalByCity = traders.reduce((cityObj, trs) => {
   const city = trs.trader.city;
   cityObj[city] = (cityObj[city] || 0) + trs.value;
   return cityObj;
 }, {});
-
 console.log(totalByCity);
+```
 
+### 💡 배운 점
 
-// 4. **각 도시에서 진행된 거래의 수를 계산해주세요.
-//   결과는 `{도시이름: 거래수}` 형태의 객체여야 합니다.**
-console.log('===================');
+* `short-circuit(단축 평가)`와 동적 키를 이용한 간결한 코드 작성 가능.
+* `switch`보다 유지보수성 높은 접근 방식임을 깨달음.
 
+---
+
+## 4️⃣ 각 도시별 거래 건수 구하기
+
+### ✍️ 내 풀이
+
+```js
+const cityTradeNum = traders.reduce((resultObj, trade) => {
+  const city = trade.trader.city;
+  if (city === '서울') {
+    resultObj['서울'] = (resultObj['서울'] || 0) + 1;
+  } else if (city === '부산') {
+    resultObj['부산'] = (resultObj['부산'] || 0) + 1;
+  } else if (city === '대전') {
+    resultObj['대전'] = (resultObj['대전'] || 0) + 1;
+  }
+  return resultObj;
+}, {});
+console.log(cityTradeNum);
+```
+
+### ✅ 선생님 풀이
+
+```js
 const trsCountByCity = traders.reduce((cityObj, { trader }) => {
-  const {city} = trader;
+  const { city } = trader;
   if (cityObj[city] === undefined) {
     cityObj[city] = 1;
   } else {
@@ -296,18 +148,44 @@ const trsCountByCity = traders.reduce((cityObj, { trader }) => {
   }
   return cityObj;
 }, {});
-
 console.log(trsCountByCity);
+```
 
+### 💡 배운 점
 
+* 구조 분해 할당으로 중첩 객체 접근을 간단하게 처리.
+* `=== undefined` 비교를 통해 `||` 없이도 안전한 값 설정 가능.
 
-// 5. **거래액을 기준으로 모든 거래를 오름차순으로 정렬한 후,
-//   정렬된 리스트를 출력해주세요.
-//   각 거래 정보는 거래자 이름, 도시, 연도, 거래액을 포함해야 합니다.**
-console.log('===================');
+---
 
+## 5️⃣ 거래액 기준 오름차순 정렬
+
+### ❌ 내 풀이
+
+```js
+const sortedList = traders.sort((a, b) => a.value - b.value);
+console.log(sortedList);
+```
+
+* 정렬은 되었지만 `traders` 원본이 변형되어 다른 문제에 영향.
+
+### ✅ 선생님 풀이
+
+```js
 const sortedTraders = [...traders];
-
 sortedTraders.sort((a, b) => a.value - b.value);
 console.log(sortedTraders);
 ```
+
+### 💡 배운 점
+
+* 원본 배열을 건드리지 않도록 항상 복사 후 정렬.
+
+---
+
+## 📌 총 정리
+
+* `filter + reduce` 조합으로 원하는 조건의 합계 추출 가능.
+* 배열 정렬 시 원본 보호를 위해 복사하는 습관 들이기.
+* `reduce`는 누적값을 만들 때 유연한 키 사용이 가능하므로 객체 생성에도 유용.
+* `구조 분해 할당`, `단축 평가`, `동적 키 접근`을 통해 코드를 더 간결하고 효율적으로 작성할 수 있다는 점을 배움.
