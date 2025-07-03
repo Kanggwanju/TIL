@@ -6,7 +6,7 @@
 깃허브에서 Issues 생성
 
 [bug] 낚시 게임 게이지 바 색상 문제 #32
-![img_1.png](img_1.png)
+![img_1.png](ThrowIt_Github_Collaboration_img1.png)
 
 # develop 브랜치에서 새 브랜치 생성 및 이동
 git checkout develop
@@ -23,7 +23,7 @@ git push origin bug/32-fishingGauge-kgj
 
 # Pull Request 요청
 Bug: #32 낚시 게임 게이지 바 색상 문제 #33
-![img_2.png](img_2.png)
+![img_2.png](ThrowIt_Github_Collaboration_img2.png)
 
 
 테스트
