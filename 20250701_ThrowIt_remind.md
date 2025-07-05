@@ -1,5 +1,6 @@
 # 🗓️ 2025년 7월 1일 ThrowIt 트러블슈팅 & 회고록
 
+## 진행 기간: 2025년 6월 23일 ~ 7월 2일
 ## 팀 이름: ThrowIt
 ## 게임 이름: 깊은 바다의 전설
 ## 깃허브 주소: https://github.com/Throw-it-or-not/throwIt
