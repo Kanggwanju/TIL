@@ -1,51 +1,54 @@
-# 🗓️ 2025년 7월 10일
+# Java Stream을 활용한 거래 데이터 분석 실습
+> Java Stream API를 활용하여 거래 데이터를 정렬, 필터링, 그룹화하는 다양한 실습을 진행함. (2025-07-10)
 
+## 🔑 오늘의 키워드
+- `equalsIgnoreCase`, `distinct`, `sorted`, `Optional`, `orElse`, `groupingBy`
+- 스트림 정렬 및 최댓값/최솟값 구하기
+- 거래 데이터를 연도별로 그룹화
+- `Integer` → `int` 변환 시 주의점
 
-equalsIgnoreCase
-대소문자를 신경쓰지 않고 비교
+---
 
-클래스에서 equals, 해쉬코드를 써주지 않아도
-stream 연산에서는 값이 똑같으면 중복으로 보기 때문에
-distinct를 사용하면 중복이 제거된다.
-원칙상으로는 클래스에 equals, 해쉬코드를 오버라이드 해줘야한다.
+## 📌 문자열 비교: equalsIgnoreCase
 
+```java
+str1.equalsIgnoreCase(str2);
+````
 
+* 문자열을 비교할 때 **대소문자를 무시하고 비교**할 수 있음.
+* `"Cambridge"` 와 `"cambridge"` 도 같다고 판별됨.
 
+---
 
-연습 4: 모든 거래자의 이름을 리스트에 모아서
-알파벳순으로 오름차정렬하여 반환
-```java 
+## 📌 distinct()와 equals/hashCode
+
+* 클래스에서 `equals()`와 `hashCode()`를 오버라이딩하지 않아도
+  **Stream 연산에서는 값이 같으면 중복으로 간주**됨
+* 하지만 **원칙적으로는 오버라이딩이 필요함**
+
+---
+
+## 💡 연습 4: 거래자의 이름 정렬
+
+```java
 List<String> nameList = transactions.stream()
     .map(trs -> trs.getTrader().getName())
     .distinct()
-//  .sorted(Comparator.reverseOrder()) // 내림차
+    // .sorted(Comparator.reverseOrder()) // 내림차순
     .sorted()
     .collect(toList());
 ```
 
-정렬을 할 데이터의 스트링, 인트, 더블같은 경우에 오름차 정렬을 할 때는
-.sorted()로 sorted에 파라미터를 안 넣어주면 자동으로 된다.
-내림차를 하고싶을 때는 `.sorted(Comparator.reverseOrder())`
+* 데이터가 스트링, 인트, 더블과 같은 경우 파라미터 없이 .sorted() 사용 가능
+* `.sorted()`는 기본 오름차순 정렬
+* `.sorted(Comparator.reverseOrder())`는 내림차순 정렬
 
+---
 
+## 💡 연습 7: 최고 거래액 구하기
 
+### 🧪 내 방식
 
-
-
-문제 7. 모든 거래에서 최고거래액은 얼마인가?
-선생님 방식:
-```java
-int max = transactions.stream()
-    .mapToInt(trs -> trs.getValue())
-    .max()
-    .orElse(0)
-    ;
-```
-max를 사용하면 결과물로 OptionalInt 타입이 나온다.
-Optional : NPE(NullPointerException) 방지를 위한 자바의 노력
-orElse를 이용해서 int로 바꿔줌
-
-내 방식:
 ```java
 Integer highestTransactionValue = transactions.stream()
     .map(tr -> tr.getValue())
@@ -53,38 +56,43 @@ Integer highestTransactionValue = transactions.stream()
     .findFirst()
     .get();
 ```
-내 방식은 Integer를 반환하므로 나중에 계산을 위해서는
-Integer -> int로 변경하는 작업이 필요하다.
 
+* `Integer`로 반환되므로 계산할 때 **int 변환**이 필요함
+* `.get()`은 `null`일 경우 예외 발생 가능성 있음
 
+### ✅ 선생님 방식
 
+```java
+int max = transactions.stream()
+    .mapToInt(trs -> trs.getValue())
+    .max()
+    .orElse(0);
+```
+* 여기서 max를 사용하면 결과물로 OptionalInt 타입이 나옴
+* Optional : NPE(NullPointerException) 방지를 위한 자바의 노력
+* `OptionalInt` → `.orElse(0)`을 통해 안전하게 기본값 처리
 
+---
 
+## 💡 연습 8: 최저 거래액 구하기
 
-연습 8. 가장 작은 거래액을 가진 거래정보 탐색
+### ✅ 내 방식
 
-내 방식
 ```java
 Integer lowestTransactionValue = transactions.stream()
-   .map(tr -> tr.getValue())
-   .sorted((o1, o2) -> o1 - o2)
-   .findFirst()
-   .get();
-
-System.out.println("최저거래액 = " + lowestTransactionValue);
+    .map(tr -> tr.getValue())
+    .sorted()
+    .findFirst()
+    .get();
 ```
-transactions를 거래액으로 매핑,
-.sorted((o1, o2) -> o1 - o2)은
-.sorted()로 변경 가능, 오름차순으로 정렬
-findFirst를 통해 가장 낮은 거래액을 찾고
-get을 통해 가져오는 방식
 
-내 방식은 Integer를 반환하므로 나중에 계산을 위해서는
-Integer -> int로 변경하는 작업이 필요하다.
+* 오름차순 정렬 후 가장 앞 요소 선택
+* `.get()` 대신 `.orElse()`로 안전하게 처리하는 것이 더 좋음
 
+### ✅ 선생님 방식
 
-선생님 방식
-1. 반복문을 이용해서 구하는 방식
+#### 방법 1: 반복문
+
 ```java
 Transaction minTrs = transactions.get(0);
 for (Transaction trs : transactions) {
@@ -94,64 +102,54 @@ for (Transaction trs : transactions) {
 }
 ```
 
-2. stream을 이용한 방식
+#### 방법 2: stream + min
+
 ```java
 Transaction minTrs = transactions.stream()
     .min(Comparator.comparing(Transaction::getValue))
     .orElse(null);
 ```
 
-min 내부에 Comparator.comparing(Transaction::getValue)를
-적어줌으로써 transactions 중에서 Value를 기준으로 제일 작은
-Optional<Transaction>을 반환함.
-orElse를 사용하여 Optional<Transaction>을 Transaction 으로 만들어줌
+* 거래액을 기준으로 가장 적은 Optional<Transaction>을 반환
+* `Optional<Transaction>` → `.orElse(null)`을 통해 안전하게 기본값 처리
 
+---
 
-연습 10. 모든 거래에서 가장 작은 거래액보다
-큰 거래액을 가진 거래의 평균을 계산하시오.
-내 방식
+## 💡 연습 10: 최저 거래액보다 큰 거래들의 평균 구하기
+
+### ✅ 내 방식
+
 ```java
 double averageAboveLowestTransaction = transactions.stream()
    .filter(tr -> tr.getValue() > lowestTransactionValue)
    .mapToInt(tr -> tr.getValue())
    .average()
-   .getAsDouble();
+   .getAsDouble();  // 위험
 ```
-1. 이전에 구했던 가장 작은 거래액(최소 거래액) lowestTransactionValue를
-   사용하여 필터링
-2. Transaction의 거래액을 mapToInt를 통해 Int로 매핑
-3. average() 평균이 나오게 연산
-4. getAsDouble() Double 타입으로 변환
-   getAsDouble은 널 포인터 익셉션이 뜰 위험이 크므로 사용하지
-   않는게 좋다고 한다.
 
-선생님 방식
+* `.getAsDouble()`은 값이 없을 때 예외 발생 가능
+
+### ✅ 선생님 방식
+
 ```java
-// 최소 거래액 찾기
 int minValue = transactions.stream()
    .mapToInt(trs -> trs.getValue())
    .min()
    .orElse(0);
 
-System.out.println("minValue = " + minValue);
-
-// 평균 구하기
 double average = transactions.stream()
    .filter(trs -> trs.getValue() > minValue)
    .mapToInt(trs -> trs.getValue())
    .average()
-   .orElse(0.0);
-
-System.out.println("average = " + average);
+   .orElse(0.0);  // 안전
 ```
-평균을 구할 때 getAsDouble이 위험한 방식이므로
-.orElse(0.0)을 통해 double 타입으로 만들어줬다.
 
+---
 
-연습 11. "Cambridge"에서 거래하는 모든 거래자의
-거래정보들을 연도별로 그룹화하여 출력하시오.
+## 💡 연습 11: Cambridge 거래자들의 거래를 연도별로 그룹화
 
-내 방식
+### ✅ 내 방식
+
 ```java
 CambridgeTransaction cambTransaction = new CambridgeTransaction();
 transactions.stream()
@@ -160,51 +158,33 @@ transactions.stream()
 
 System.out.println(cambTransaction);
 ```
-- 거래정보들을 Cambridge에서의 거래로 필터링
-- CambridgeTransaction이라는 클래스를 새로 생성
-- 그 클래스의 메서드인 makeCamb()를 이용해서 필드에 있는 Map에 데이터를 담고
-- 내용을 출력하게 만들음
-- 하지만 이것은 억지로 틀에 맞춰서 만들었을 뿐, transactions의 내용이 바뀌면
-- 메서드도 대거 수정해야하는 수고가 필요할 것으로 예상된다.
 
+* `CambridgeTransaction` 클래스를 만들어 수동으로 데이터를 분류
+* 구조가 고정적이라 거래 데이터 구조가 바뀌면 유지보수 어려움
 
-선생님 풀이 1
+---
+
+### ✅ 선생님 방식 1: Map 수동 구성
+
 ```java
-// 최종 연산 결과 데이터
 Map<Integer, List<Transaction>> groupByYearMap = new HashMap<>();
 
-// 2021년 거래들만 필터링
 List<Transaction> trs2021 = transactions.stream()
    .filter(trs -> trs.getYear() == 2021 && trs.getTrader().getCity().equalsIgnoreCase("cambridge"))
    .collect(toList());
 
-// 2022년 거래들만 필터링
 List<Transaction> trs2022 = transactions.stream()
    .filter(trs -> trs.getYear() == 2022 && trs.getTrader().getCity().equalsIgnoreCase("cambridge"))
    .collect(toList());
 
-// 최종 데이터 맵에 넣기
 groupByYearMap.put(2021, trs2021);
 groupByYearMap.put(2022, trs2022);
-
-// 예쁘게 출력
-for (Integer year : groupByYearMap.keySet()) {
-   System.out.println("year: " + year);
-   List<Transaction> trs = groupByYearMap.get(year);
-   for (Transaction tr : trs) {
-       System.out.println(tr.toStringPrettier());
-   }
-   System.out.println("--------------------------");
-}
 ```
-- 나와 다르게 선생님은 클래스를 새로 만들지 않음
-- 2021, 2022년 거래들을 따로 필터링하여 Map에 넣어줌
-- 결과적으로는 비슷하다고 생각한다.
-
 
 ---
 
-선생님 풀이 2
+### ✅ 선생님 방식 2: `groupingBy` 사용
+
 ```java
 Map<Integer, List<Transaction>> groupByYearMap2 = transactions.stream()
    .filter(trs -> trs.getTrader().getCity().equalsIgnoreCase("cambridge"))
@@ -213,13 +193,19 @@ Map<Integer, List<Transaction>> groupByYearMap2 = transactions.stream()
 groupByYearMap2.forEach((key, value) -> {
    System.out.println("year: " + key);
    value.forEach(v -> System.out.println(v.toStringPrettier()));
-   System.out.println("------------------------");
 });
 ```
-- 내 풀이, 선생님 풀이1과 다르게 여기서는 groupingBy를 사용하여 transactions이 변경되어도
-- 확실하게 trs.getYear()를 키로 하여 맵으로 모두 묶어줌
 
-- `.collect(Collectors.groupingBy(trs -> trs.getYear()))`는 특정 데이터를 기준으로
-  리스트들을 묶어줄 수 있으니 기억해야겠다고 생각함.
+* `groupingBy`를 사용하면 연도별로 자동 그룹핑
+* 가장 유지보수가 유연한 방법으로 판단됨
 
-- Map은 for문이 돌아가지 않지만, forEach는 가능하다는 점도 새로 알게됐음.
+---
+
+## 🧠 오늘의 회고
+
+* Stream의 다양한 기능들 (map, filter, sorted, distinct, groupingBy 등)을 실전에서 익힘
+* Optional 관련 메서드 (`orElse`, `getAsDouble`)의 위험성과 대처법 학습
+* `groupingBy`는 앞으로도 데이터 분류할 때 자주 쓰일 테니 꼭 기억하기!
+* 불필요하게 클래스를 만드는 것보다 Stream API의 기능을 잘 활용하는 게 더 좋을 수 있음
+* `Integer` → `int` 변환 시에는 **null 체크와 예외 처리**에 주의하기
+
