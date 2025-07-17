@@ -1,120 +1,131 @@
-학생 점수 관리 프로그램
-Spring API 실습
+# 🧪 2025년 7월 17일 - Spring API 실습 정리
+> 학생 점수 관리 프로그램 Spring API 실습을 진행
 
+## 📌 오늘의 핵심 키워드
 
-@JsonProperty를 사용하면 프론트에서 필드 이름을
-다르게 달라고 했을 때 바꿔서 줄 수 있음
-ex)
-`@JsonProperty("sum")
-private int total;`
+* `@JsonProperty`
+* 마스킹 처리
+* `FormData` → JSON 변환
+* 입력값 유효성 검사
+* JSP 표현식 `${}` 주의
+* `Model` 객체를 통한 데이터 전달
 
+---
 
+## 1. @JsonProperty로 응답 필드명 변경하기
 
-마스킹 할 때 글자 수에 따라 다르게 적용
+프론트엔드에서 JSON 응답 필드명을 요청한 형태로 바꿔야 할 때 사용합니다.
+
+```java
+@JsonProperty("sum")
+private int total;
+```
+
+> `total`이라는 필드를 JSON 응답에서 `"sum"`이라는 이름으로 내려줍니다.
+
+---
+
+## 2. 닉네임 마스킹 처리
+
+이름 길이에 따라 마스킹 방식이 달라져야 함을 실습을 통해 배움.
+
 ```java
 private static String maskNickName(String originName) {
-    
     // 이름이 1글자인 사람 처리
-    if (originName.length() <= 1) {
-        return originName;
-    }
-    
+    if (originName.length() <= 1) return originName;
+
     // 이름이 2글자인 사람 처리
-    if (originName.length() <= 2) {
+    if (originName.length() == 2) {
         return originName.charAt(0) + "*";
     }
 
     // 나머지 경우
-    // 첫글자
-    char firstLetter = originName.charAt(0);
-    // 마지막 글자
-    char lastLetter = originName.charAt(originName.length() - 1);
+    char first = originName.charAt(0);
+    char last = originName.charAt(originName.length() - 1);
+    String middle = "*".repeat(originName.length() - 2);
 
-    // 완성된 마스킹 네임
-    String maskingName = String.valueOf(firstLetter);
-
-    for (int i = 1; i < originName.length() - 1; i++) {
-        maskingName += "*";
-    }
-    maskingName += lastLetter;
-
-    return maskingName;
+    return first + middle + last;
 }
-
 ```
-- 이름 1글자, 2글자, 3글자 이상 다르게 처리해줘야함을 알게됐음.
-
 
 ---
 
+## 3. FormData로 폼 데이터 한 번에 추출하기
+
+JavaScript에서 `form` 데이터를 한 번에 추출하는 `FormData` 객체 사용법을 학습함.
 
 ```javascript
-// 성적 정보 등록 이벤트
 document.getElementById('createBtn').addEventListener('click', e => {
-
-  e.preventDefault(); // form의 submit시 발생하는 새로고침 방지
-
+  e.preventDefault(); // 새로고침 방지
+  
   const $form = document.getElementById('score-form');
+  
   // formData객체 생성
   const formData = new FormData($form);
   const scoreObj = Object.fromEntries(formData.entries());
   console.log(scoreObj);
-
-  // 서버로 POST요청 전송
-  fetchPostScore(scoreObj);
-
+  
+  fetchPostScore(scoreObj); // 서버로 POST요청 전송
 });
 ```
-formData 객체를 생성하여,
-form 데이터를 한번에 가져오는 방법을 새롭게 배움
 
 ---
 
+## 4. 입력값 검증을 위한 Bean Validation
 
-입력값 검증
 ```java
 public class ScoreCreateRequest {
-    // 공백문자, null 둘다 허용하지 않음
+
     @NotEmpty(message = "이름은 필수값입니다.")
     @Pattern(regexp = "^[가-힣]+$", message = "이름은 한글로만 작성하세요!")
     private String studentName;
 
+    @NotNull(message = "국어점수는 필수값입니다.")
     @Min(value = 0, message = "국어 점수는 0점 이상이어야합니다.")
     @Max(value = 100, message = "국어 점수는 100점 이하여야합니다.")
-    @NotNull(message = "국어점수는 필수값입니다.")
     private Integer korean;
 }
 ```
-- @NotEmpty: 공백문자, null 둘다 허용하지 않음
-- 점수를 Integer로 한 이유는 기본값이 null이기 때문이다.
-- int로 했을 경우에는 기본값이 0이기 때문에 null 체크를 못함
+
+* `@NotEmpty`: 공백문자, null 둘 다 허용하지 않음
+* `Integer`를 사용하는 이유: `int`는 기본값이 0이라 null 여부 검사가 불가능함
 
 ---
 
-JSP 문법 주의
-JSP에서 ${id}를 쓸 때는 조심해야함.
-${id}는 서버가 내려주는 id이고,
-\${stuId}는 stuId라는 자바스크립트의 변수임.
+## 5. JSP 표현식 `${}` 주의점
 
+```jsp
+${id}       // 서버에서 내려준 값
+\${stuId}   // JS 변수명으로 사용 (이스케이프 처리 필요)
+```
+
+> JSP에서는 `${}`는 서버 렌더링 대상이므로,
+> 클라이언트 JS 변수와 구분하려면 `\${}` 형태로 써야 함.
 
 ---
 
-페이지 라우팅 데이터 전달
-서버가 페이지 라우팅을 할 때 데이터를 내려주는 방법
-JSP에게 특정 데이터(id)를 클라이언트에게 전송
-페이지 라우팅을 할 때 파라미터로 Model 타입을 사용할 수 있음
-이를 이용해서 클라이언트에게 데이터를 전송해줄 수 있다.
+## 6. 서버에서 클라이언트로 데이터 전달 - Model 사용
 
 ```java
 @GetMapping("/{id}")
 public String detailPage(@PathVariable("id") Long id, Model model) {
-    // JSP에게 특정 데이터(id)를 전송
-    model.addAttribute("stuId", id);
-    return "score/score-detail";
+    model.addAttribute("stuId", id); // JSP에서 사용할 데이터 전달
+    return "score/score-detail";     // 뷰 이름 반환
 }
 ```
-@PathVariable 경로 변수를 통해 얻은 id를
-model에 stuId라는 특성에 넣어줌.
-`model.addAttribute("stuId", id);`
+
+> 경로 변수 `id`를 `Model` 객체에 담아 JSP로 전달합니다.
 
 ---
+
+## ✅ 오늘의 학습 요약
+
+| 항목          | 학습 내용                                             |
+| ----------- | ------------------------------------------------- |
+| 응답 커스터마이징   | `@JsonProperty` 사용하여 JSON 필드명 변경                  |
+| 입력 검증       | `@NotEmpty`, `@NotNull`, `@Min`, `@Max` 등의 유효성 검사 |
+| 마스킹 처리      | 이름 길이에 따라 다르게 마스킹 적용                              |
+| 클라이언트 요청 처리 | `FormData → JSON → fetch POST` 흐름 이해              |
+| 데이터 전달      | `Model`을 통한 서버 → JSP 데이터 전송                       |
+| JSP 문법 주의   | `${}` 표현식과 JS 변수의 구분 필요                           |
+
